@@ -16,6 +16,7 @@ final class GameViewModel: ObservableObject {
     @Published var alertItem: AlertItem?
     
     func processPlayerMove(for position: Int) {
+        // human move processing
         if isSquareOccupied(in: moves, forIndex: position) { return }
         moves[position] = Move(player: .human, boardIndex: position)
                                     
@@ -32,7 +33,7 @@ final class GameViewModel: ObservableObject {
         
         isGameBoardDisabled = true
 
-        
+        // computer move processing
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [self] in
             let computerPosition = determineComputerMovePosition(in: moves)
             moves[computerPosition] = Move(player: .computer, boardIndex: computerPosition)
