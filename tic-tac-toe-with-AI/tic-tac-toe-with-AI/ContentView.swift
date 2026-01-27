@@ -17,8 +17,8 @@ struct ContentView: View {
     private let columns = Array(repeating: GridItem(.flexible()), count: 3)
     
     @State private var moves: [Move?] = Array(repeating: nil, count: 9)
-    @State private var isHumansTurn: Bool = true
     @State private var isGameBoardDisabled: Bool = false
+    @State private var alertItem: AlertItem?
     
     var body: some View {
         // GeometryReader measures the available space offered by its parent, it always expands to take all available space
@@ -48,14 +48,35 @@ struct ContentView: View {
                         .onTapGesture {
                             if isSquareOccupied(in: moves, forIndex: i) { return }
                             moves[i] = Move(player: .human, boardIndex: i)
-                            isGameBoardDisabled = true
-                            
+                                                        
                             //check for win condition or draw
+                            if checkWinCondition(for: .human, in: moves) {
+                                alertItem = AlertContext.humanWin
+                                return
+                            }
+                            
+                            if checkForDrawCondition(in: moves) {
+                                alertItem = AlertContext.draw
+                                return
+                            }
+                            
+                            isGameBoardDisabled = true
+
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                 let computerPosition = determineComputerMovePosition(in: moves)
                                 moves[computerPosition] = Move(player: .computer, boardIndex: computerPosition)
                                 isGameBoardDisabled = false
+                                
+                                if checkWinCondition(for: .computer, in: moves) {
+                                    alertItem = AlertContext.computerWin
+                                    return
+                                }
+                                
+                                if checkForDrawCondition(in: moves) {
+                                    alertItem = AlertContext.draw
+                                    return
+                                }
                             }
                         }
                     }
@@ -65,6 +86,11 @@ struct ContentView: View {
             }
             .disabled(isGameBoardDisabled)
             .padding()
+            .alert(item: $alertItem, content: {alertItem in
+                Alert(title: alertItem.title,
+                      message: alertItem.message,
+                      dismissButton: .default(alertItem.ButtonTitle, action: {resetGame()}))
+            })
         }
     }
     
@@ -80,6 +106,26 @@ struct ContentView: View {
         }
         
         return movePosition
+    }
+    
+    func checkWinCondition(for player: Player, in moves: [Move?]) -> Bool {
+        // Series of board indexes that will make a win
+        let winPatterns: Set<Set<Int>> = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+        
+        let playerMoves = moves.compactMap{$0}.filter{$0.player == player}
+        let playerPostition = Set(playerMoves.map{$0.boardIndex})
+        
+        for pattern in winPatterns where pattern.isSubset(of: playerPostition) { return true }
+        
+        return false
+    }
+    
+    func checkForDrawCondition(in moves: [Move?]) -> Bool{
+        return moves.compactMap({$0}).count == 9
+    }
+    
+    func resetGame(){
+        moves = Array(repeating: nil, count: 9)
     }
 }
 
