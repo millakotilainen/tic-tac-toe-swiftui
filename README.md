@@ -28,3 +28,4 @@ iOS Tic Tac Toe game build with SwiftUI featuring a computer opponent with diffe
 ## Screenshots
 
 ![Game Board](screenshots/game-board.png)
+![Win Alert](screenshots/game-over.png)
