@@ -16,6 +16,17 @@ struct GameView: View {
         GeometryReader { geometry in
             // VStack vertically stacks child views from top to bottom
             VStack {
+                Picker("Difficulty", selection: $viewModel.difficulty) {
+                    ForEach(Difficulty.allCases){ d in
+                        Text(d.rawValue).tag(d)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal)
+                .onChange(of: viewModel.difficulty) {
+                    viewModel.resetGame()
+                }
+                
                 // Flexible empty view that expands to take available space, pushes other content away
                 Spacer()
                 // LazyVGrid (columns: columns) passes the colunms array, created above, into the grid.
@@ -48,5 +59,6 @@ struct GameView: View {
 #Preview {
     GameView()
 }
+
 
 

@@ -14,6 +14,7 @@ final class GameViewModel: ObservableObject {
     @Published var moves: [Move?] = Array(repeating: nil, count: 9)
     @Published var isGameBoardDisabled: Bool = false
     @Published var alertItem: AlertItem?
+    @Published var difficulty: Difficulty = .easy
     
     func processPlayerMove(for position: Int) {
         // human move processing
@@ -35,7 +36,7 @@ final class GameViewModel: ObservableObject {
 
         // computer move processing
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [self] in
-            let computerPosition = determineComputerMovePosition(in: moves)
+            let computerPosition = determineComputerMovePosition(in: moves, forDifficulty: difficulty)
             moves[computerPosition] = Move(player: .computer, boardIndex: computerPosition)
             isGameBoardDisabled = false
             
@@ -57,55 +58,83 @@ final class GameViewModel: ObservableObject {
     }
     
     
-    func determineComputerMovePosition(in moves: [Move?] )-> Int{
-        // if AI can win, then win
-        let winPatterns: Set<Set<Int>> = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+    func determineComputerMovePosition(in moves: [Move?], forDifficulty difficulty: Difficulty )-> Int{
+       switch difficulty {
+        case .easy:
+           return randomMoves(in: moves)
+        case .medium:
+           if let block = findBlockingMove(in: moves){
+               return block
+           }
+            return randomMoves(in: moves)
+        case .hard:
+           if let win = findWinningMove(in: moves, for: .computer){
+               return win
+           }
+           if let block = findBlockingMove(in: moves){
+               return block
+           }
+           
+           return randomMoves(in: moves)
+        }
         
-        let computerMoves = moves.compactMap{$0}.filter{$0.player == .computer}
-        let computerPositions = Set(computerMoves.map{$0.boardIndex})
-        
-        for pattern in winPatterns {
-            let winPositions = pattern.subtracting(computerPositions)
+        func findWinningMove(in moves: [Move?], for currentPlayer: Player) -> Int? {
+            let winPatterns: Set<Set<Int>> = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
             
-            if winPositions.count == 1 {
-                let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
-                if isAvailable {
-                    return winPositions.first!
+            // if AI can win, then win
+            let computerMoves = moves.compactMap{$0}.filter{$0.player == .computer}
+            let computerPositions = Set(computerMoves.map{$0.boardIndex})
+            
+            for pattern in winPatterns {
+                let winPositions = pattern.subtracting(computerPositions)
+                
+                if winPositions.count == 1 {
+                    let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
+                    if isAvailable {
+                        return winPositions.first!
+                    }
                 }
             }
+            return nil
         }
-        
-        // if AI cannot win, then block
-        let humanMoves = moves.compactMap{$0}.filter{$0.player == .human}
-        let humanPositions = Set(humanMoves.map{$0.boardIndex})
-        
-        for pattern in winPatterns {
-            let winPositions = pattern.subtracting(humanPositions)
             
-            if winPositions.count == 1 {
-                let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
-                if isAvailable {
-                    return winPositions.first!
+        
+        func findBlockingMove(in moves: [Move?]) -> Int? {
+                let winPatterns: Set<Set<Int>> = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+                // if AI cannot win, then block
+                let humanMoves = moves.compactMap{$0}.filter{$0.player == .human}
+                let humanPositions = Set(humanMoves.map{$0.boardIndex})
+                
+                for pattern in winPatterns {
+                    let winPositions = pattern.subtracting(humanPositions)
+                    
+                    if winPositions.count == 1 {
+                        let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
+                        if isAvailable {
+                            return winPositions.first!
+                        }
+                    }
                 }
+                
+                // if AI cannot block, then take the middle square
+                let centreSquare = 4
+                if !isSquareOccupied(in: moves, forIndex: centreSquare){
+                    return centreSquare
+                }
+                return nil
             }
-        }
-        
+                
             
-        // if AI cannot block, then take the middle square
-        let centreSquare = 4
-        if !isSquareOccupied(in: moves, forIndex: centreSquare){
-            return centreSquare
-        }
+            func randomMoves(in moves: [Move?]) -> Int{
+                // if AI cannot take middle square, take random available square
+                var movePosition = Int.random(in: 0..<9)
+                    
+                while isSquareOccupied(in: moves, forIndex: movePosition) {
+                         movePosition = Int.random(in: 0..<9)
+                }
+                return movePosition
+            }
         
-        
-        // if AI cannot take middle square, take random available square
-        var movePosition = Int.random(in: 0..<9)
-        
-        while isSquareOccupied(in: moves, forIndex: movePosition) {
-             movePosition = Int.random(in: 0..<9)
-        }
-        
-        return movePosition
     }
     
     func checkWinCondition(for player: Player, in moves: [Move?]) -> Bool {
