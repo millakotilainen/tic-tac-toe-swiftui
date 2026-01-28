@@ -35,16 +35,6 @@
 			path = "tic-tac-toe-with-AI";
 			sourceTree = "<group>";
 		};
-		5D5184F62F279724002A6FF7 /* tic-tac-toe-with-AITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "tic-tac-toe-with-AITests";
-			sourceTree = "<group>";
-		};
-		5D5185002F279724002A6FF7 /* tic-tac-toe-with-AIUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "tic-tac-toe-with-AIUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				5D5184E82F279723002A6FF7 /* tic-tac-toe-with-AI */,
-				5D5184F62F279724002A6FF7 /* tic-tac-toe-with-AITests */,
-				5D5185002F279724002A6FF7 /* tic-tac-toe-with-AIUITests */,
 				5D5184E72F279723002A6FF7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +118,6 @@
 			dependencies = (
 				5D5184F52F279724002A6FF7 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				5D5184F62F279724002A6FF7 /* tic-tac-toe-with-AITests */,
-			);
 			name = "tic-tac-toe-with-AITests";
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				5D5184FF2F279724002A6FF7 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				5D5185002F279724002A6FF7 /* tic-tac-toe-with-AIUITests */,
 			);
 			name = "tic-tac-toe-with-AIUITests";
 			packageProductDependencies = (
