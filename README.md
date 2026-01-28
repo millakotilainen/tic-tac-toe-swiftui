@@ -25,3 +25,6 @@ iOS Tic Tac Toe game build with SwiftUI featuring a computer opponent with diffe
 - Xcode 15+
 - iOS 17+
 
+## Screenshots
+
+![Game Board](screenshots/Simulator Screenshot - iPhone 17 Pro - 2026-01-28 at 15.15.41.png)
